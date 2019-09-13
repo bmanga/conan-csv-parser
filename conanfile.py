@@ -50,12 +50,14 @@ class CsvParserConan(ConanFile):
         return cmake
 
     def build(self):
+        if self.options.shared:
+            tools.replace_in_file("{}/include/internal/CMakeLists.txt".format(self._source_subfolder), 'add_library(csv STATIC "")', 'add_library(csv SHARED "")')
+
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
 
         include_folder = os.path.join(self._source_subfolder, "include")
         self.copy(pattern="*", dst="include", src=include_folder)
