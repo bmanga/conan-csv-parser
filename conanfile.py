@@ -24,10 +24,6 @@ class CsvParserConan(ConanFile):
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
 
-    def config_options(self):
-        if self.settings.os == 'Windows':
-            del self.options.fPIC
-
     def source(self):
         source_url = self.homepage
         tools.get("{0}/archive/{1}.tar.gz".format(source_url, self.version), sha256="b16a4a1a2f1674842e28cb9c866fdefd337fc7ccac03445aa7d83f79ddd8465c")
@@ -48,6 +44,7 @@ class CsvParserConan(ConanFile):
         return cmake
 
     def build(self):
+        tools.replace_in_file("{}/CMakeLists.txt".format(self._source_subfolder), 'add_subdirectory("programs")', "")
         cmake = self._configure_cmake()
         cmake.build()
 
