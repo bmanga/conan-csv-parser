@@ -12,19 +12,11 @@ class CsvParserConan(ConanFile):
     homepage = "https://github.com/vincentlaucsb/csv-parser"
     author = "Bincrafters <bincrafters@gmail.com>"
     license = "MIT"  # Indicates license type of the packaged library; please use SPDX Identifiers https://spdx.org/licenses/
+    no_copy_source = True
+    
     exports = ["LICENSE.md"]      # Packages the license for the conanfile.py
-    # Remove following lines if the target lib does not use cmake.
-    exports_sources = ["CMakeLists.txt"]
-    generators = "cmake"
-
-    options = {"fPIC" : [True, False]}
-    default_options = {"fPIC": True}
-    # Options may need to change depending on the packaged library.
-    settings = "os", "arch", "compiler", "build_type"
-
     # Custom attributes for Bincrafters recipe conventions
     _source_subfolder = "source_subfolder"
-    _build_subfolder = "build_subfolder"
 
     def source(self):
         source_url = self.homepage
@@ -34,29 +26,10 @@ class CsvParserConan(ConanFile):
         # Rename to "source_subfolder" is a convention to simplify later steps
         os.rename(extracted_dir, self._source_subfolder)
 
-    def _configure_cmake(self):
-        cmake = CMake(self)
-
-        cmake.definitions["CSV_CXX_STANDARD"] = 11
-        if hasattr(self.settings.compiler, "cppstd"):
-            if self.settings.compiler.cppstd in ["17", "gnu17", "20", "gnu20"]:
-                cmake.definitions["CSV_CXX_STANDARD"] = 17
-
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
-
-    def build(self):
-        tools.replace_in_file("{}/CMakeLists.txt".format(self._source_subfolder), 'add_subdirectory("programs")', "")
-        cmake = self._configure_cmake()
-        cmake.build()
-
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-
         include_folder = os.path.join(self._source_subfolder, "include")
+        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(pattern="*", dst="include", src=include_folder)
-        self.copy(pattern="*.lib", dst="lib", keep_path=False)
-        self.copy(pattern="*.a", dst="lib", keep_path=False)
 
-    def package_info(self):
-        self.cpp_info.libs = ["csv"]
+    def package_id(self):
+        self.info.header_only()
