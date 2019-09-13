@@ -17,6 +17,8 @@ class CsvParserConan(ConanFile):
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"
 
+    options = {"fPIC" : [True, False]}
+    default_options = {"fPIC": True}
     # Options may need to change depending on the packaged library.
     settings = "os", "arch", "compiler", "build_type"
 
@@ -53,11 +55,8 @@ class CsvParserConan(ConanFile):
 
         include_folder = os.path.join(self._source_subfolder, "include")
         self.copy(pattern="*", dst="include", src=include_folder)
-        self.copy(pattern="*.dll", dst="bin", keep_path=False)
         self.copy(pattern="*.lib", dst="lib", keep_path=False)
         self.copy(pattern="*.a", dst="lib", keep_path=False)
-        self.copy(pattern="*.so*", dst="lib", keep_path=False)
-        self.copy(pattern="*.dylib", dst="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["csv"]
